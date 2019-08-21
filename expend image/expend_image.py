@@ -32,7 +32,8 @@ class MultipleProcessingImage(object):
                                 4: 'noiseImage',
                                 5: 'blurImage',
                                 6: 'lightImage',
-                                7: 'contrastImage'
+                                7: 'contrastImage',
+                                8: 'sharpingImage'
                              }
 
     def mkdirCheck(self, path, is_makdir=False):
@@ -257,9 +258,12 @@ class MultipleProcessingImage(object):
             contrast_img = np.uint8(np.clip((1.0 * img - 20), 0, 255))
         return contrast_img
 
+    def sharpingImage(self,img):
+        kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], np.float32)  # 锐化
+        dst_img = cv.filter2D(img, -1, kernel=kernel)
+        return dst_img
     # def multipleProcessImage(img=np.array, expend_rate=10, processing_depth=2, save_path='', category_name=''):
     def multipleProcessImage(self, img=np.array):
-
         """
         图片多重处理
         :param img: 源图片
@@ -289,6 +293,8 @@ class MultipleProcessingImage(object):
                     process_img = self.lightImage(process_img)
                 elif self.process_method[index] == 'contrastImage':
                     process_img = self.contrastImage(process_img)
+                elif self.process_method[index] == 'sharpingImage':
+                    process_img = self.sharpingImage(process_img)
 
             img_path = os.path.join(self.dst_path, self.category_name + '_' + str(self.image_index) + '.jpg')
             cv.imwrite(img_path, process_img)
@@ -321,15 +327,12 @@ class MultipleProcessingImage(object):
 
 if __name__ == "__main__":
 
-    path = os.path.abspath('..\\..') + '\databases\\fruit_vegetables\\tomatoes'
-    new_path = os.path.abspath('..\\..') + '\databases\\fruit_vegetables\\new_tomatoes'
+    path = os.path.abspath('..\\..\\..') + '\\databases\\fruit_vegetables\\tomatoes'
+    new_path = os.path.abspath('..\\..\\..') + '\\databases\\fruit_vegetables\\new_tomatoes'
 
     process = MultipleProcessingImage(src_path=path, dst_path=new_path, category_name='tomatoes')
     process.run()
     # print(process.process_method)
-
-
-
 
 
     # cv.imshow('image', img)
