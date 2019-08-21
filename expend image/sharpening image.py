@@ -9,6 +9,8 @@ import cv2 as cv
 
 
 def image_scale(img):
+    h = img.shape[0]
+    w = img.shape[1]
     scale_img = np.zeros(img.shape, np.uint8)
     min_pixel = img[0][0]
     max_pixel = img[0][0]
@@ -24,26 +26,43 @@ def image_scale(img):
     return scale_img
 
 
+def Lmaskoperation(arr):
+    """
+    Laplacian mask operation laplacian 掩模操作
+    :param arr: 单位卷积向量
+    :return:
+    """
+    kernel = [-1, -1, -1, -1, 8, -1, -1, -1, -1]
+
+    return np.dot(arr, kernel)
+
 def laplacian_sharping(img):
     """
     原始图像
     :param img:
     :return:
     """
+    h = img.shape[0]
+    w = img.shape[1]
     # 转换为灰度图像
     gray_img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     laplace_raw_img = np.zeros(gray_img.shape)
-    h = gray_img.shape[0]
-    w = gray_img.shape[1]
+
     # 执行卷积操作
     for i in range(h):
         for j in range(w):
             if i == 0 or j == 0 or i == h - 1 or j == w - 1:
                 laplace_raw_img[i][j] = gray_img[i][j]
             else:
-                laplace_raw_img[i][j] = int(gray_img[i - 1, j]) + int(gray_img[i + 1, j]) + int(gray_img[i, j - 1]) \
-                                        + int(gray_img[i, j + 1]) - int(4 * gray_img[i, j])
-    laplace_dst_img = gray_img + laplace_raw_img
+                arr = np.zeros((1, 9))[0]
+                for k in range(3):
+                    for l in range(3):
+                        arr[k*3+l] = gray_img[i-1+k, j-1+l]
+
+                laplace_raw_img[i][j] = Lmaskoperation(arr)
+
+    laplace_raw_img = image_scale(laplace_raw_img)
+    laplace_dst_img = gray_img - laplace_raw_img
     dst_laplace_img = np.uint8(laplace_dst_img)
 
     return gray_img, laplace_raw_img, dst_laplace_img
@@ -52,7 +71,7 @@ def laplacian_sharping(img):
 if __name__ == "__main__":
 
     path = os.path.abspath('..\\..\\..') + '\\databases\\image'
-    img_path = os.path.join(path, 'girl.jpg')
+    img_path = os.path.join(path, 'flower.jpg')
     src_img = cv.imread(img_path)
 
     # opencv库 laplace 运算
@@ -75,8 +94,7 @@ if __name__ == "__main__":
     cv.imshow('scaleAbs image', abs_img)
     cv.imshow('dst image', dst_img)
     cv.imshow('laplacian raw image', laplace_raw_img)
-
-    cv.imshow('laplacian scale image', dst_laplace_img)
+    cv.imshow('laplacian dst image', dst_laplace_img)
     cv.waitKey(0)
 
 
