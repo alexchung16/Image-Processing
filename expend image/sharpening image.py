@@ -3,12 +3,9 @@
 # @Author alexchung
 # @Date 21/8/2019 16:32 PM
 
-
 import os
 import numpy as np
-import random
 import cv2 as cv
-from expend_image import MultipleProcessingImage
 
 
 def image_scale(img):
@@ -53,17 +50,12 @@ def laplacian_sharping(img):
 
 
 if __name__ == "__main__":
-    random_index = random.sample((np.arange(3).tolist()), 2)
 
-    # path = os.path.abspath('..\\..') + '\databases\\fruit_vegetables\\watermelon'
-    # new_path = os.path.abspath('..\\..') + '\databases\\fruit_vegetables\\new_watermelon'
-    # process = MultipleProcessingImage(src_path=path, dst_path=new_path, category_name='watermelon')
-    # process.run()
     path = os.path.abspath('..\\..\\..') + '\\databases\\image'
     img_path = os.path.join(path, 'girl.jpg')
     src_img = cv.imread(img_path)
 
-    # opencv库 laplace 造作
+    # opencv库 laplace 运算
     gray_img = cv.cvtColor(src_img, cv.COLOR_BGR2GRAY)
     laplace_img = cv.Laplacian(gray_img, ddepth=cv.CV_32F, ksize=3)
     abs_img = cv.convertScaleAbs(laplace_img)
