@@ -7,7 +7,7 @@ import os
 import cv2 as cv
 import numpy as np
 import random
-
+from PIL import Image as im
 
 class MultipleProcessingImage(object):
     def __init__(self, src_path, dst_path, expend_rate=10, processing_depth=2, category_name=''):
@@ -35,7 +35,8 @@ class MultipleProcessingImage(object):
                                 7: 'contrastImage',
                                 8: 'sharpingImage',
                                 9: 'hueImage',
-                                10: 'saturationImage'
+                                10: 'saturationImage',
+                                11: 'dpiImage'
                              }
 
     def mkdirCheck(self, path, is_makdir=False):
@@ -299,8 +300,9 @@ class MultipleProcessingImage(object):
 
         dst_img = cv.cvtColor(np.uint8(dst_hsv_img), cv.COLOR_HSV2BGR)
         return dst_img
+
     # def multipleProcessImage(img=np.array, expend_rate=10, processing_depth=2, save_path='', category_name=''):
-    def multipleProcessImage(self, img=np.array):
+    def multipleProcessImage(self, img):
         """
         图片多重处理
         :param img: 源图片
@@ -310,12 +312,15 @@ class MultipleProcessingImage(object):
         :param category_name: 分类名称
         :return:
         """
-        # 检查保存路径
+        # 获取图像分辨率
+        # img_dpi = PIL_img.info['dpi']
+
         for i in range(self.expend_rate):
             process_img = img
             depth = np.random_index = np.random.randint(1, self.processing_depth + 1)
             process_index = sorted(random.sample((np.arange(1, len(self.process_method) + 1).tolist()), depth))
-            for index in process_index:
+
+            for index in process_index[:-1]:
                 if self.process_method[index] == 'sizeImage':
                     process_img = self.sizeImage(process_img)
                 elif self.process_method[index] == 'rotationImage':
@@ -338,7 +343,12 @@ class MultipleProcessingImage(object):
                     process_img = self.hsvImage(process_img, 1, 0.8, 1)
 
             img_path = os.path.join(self.dst_path, self.category_name + '_' + str(self.image_index) + '.jpg')
-            cv.imwrite(img_path, process_img)
+            # 判断是否压缩分辨率
+            if self.process_method[process_index[-1]] != 'dpiImage':
+                cv.imwrite(img_path, process_img)
+            else:
+                PIL_img = im.fromarray(cv.cvtColor(process_img, cv.COLOR_BGR2RGB))
+                PIL_img.save(img_path, dpi=(36.0, 36.0))
             self.image_index += 1
 
     def readProcessingSaveImage(self):
@@ -357,13 +367,14 @@ class MultipleProcessingImage(object):
             try:
                 img_path = os.path.join(self.src_path, img_name)
                 img = cv.imread(img_path)
+                # PIL_img = im.open(img_path)
                 self.multipleProcessImage(img)
                 print(img_name + ' has been successfully expended')
             except Exception as e:
                 print(img_name + ' encountered a mistake, please check it later on')
                 continue
             finally:
-                print('current processing image is'+img_name)
+                print('current processing image is' + img_name)
 
 
 if __name__ == "__main__":
