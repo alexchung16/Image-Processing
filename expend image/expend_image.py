@@ -33,7 +33,9 @@ class MultipleProcessingImage(object):
                                 5: 'blurImage',
                                 6: 'lightImage',
                                 7: 'contrastImage',
-                                8: 'sharpingImage'
+                                8: 'sharpingImage',
+                                9: 'hueImage',
+                                10: 'saturationImage'
                              }
 
     def mkdirCheck(self, path, is_makdir=False):
@@ -258,9 +260,44 @@ class MultipleProcessingImage(object):
             contrast_img = np.uint8(np.clip((1.0 * img - 20), 0, 255))
         return contrast_img
 
-    def sharpingImage(self,img):
+    def sharpingImage(self, img):
+        """
+        锐度调整
+        :param img: 源图像
+        :return:
+        """
         kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], np.float32)  # 锐化
         dst_img = cv.filter2D(img, -1, kernel=kernel)
+        return dst_img
+
+    def hsvImage(self, img, hue_rate, saturation_rate, value_rate):
+        """
+        色调 饱和度调整
+        :param img: 原图像
+        :param hue_rate: 色相调整比率
+        :param saturation_rate: 饱和度调整比率
+        :param value_rate: 明度调整比率
+        :return:
+        """
+        hsv_img = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+
+        dst_hsv_img = np.zeros(hsv_img.shape, dtype=np.uint8)
+
+        hsv_upper = np.array([180, 255, 255])
+        # hsv 变化比率
+        hsv_rate = np.array([hue_rate, saturation_rate, value_rate])
+        # mask = cv.inRange(hsv_img, lower_hsv, upper_hsv, mask)
+        #
+        for r in range(hsv_img.shape[0]):
+            max_pixel = np.max(hsv_img[r], axis=0)
+            min_pixel = np.min(hsv_img[r], axis=1)
+            for k in range(hsv_img.shape[2]):
+                dst_hsv_img[r][:, k] = hsv_img[r][:, k] * hsv_rate[k]
+                for c in range(hsv_img.shape[1]):
+                    if dst_hsv_img[r][c][k] == hsv_upper[k]:
+                        dst_hsv_img[r][c][k] = hsv_img[r][c][k]
+
+        dst_img = cv.cvtColor(np.uint8(dst_hsv_img), cv.COLOR_HSV2BGR)
         return dst_img
     # def multipleProcessImage(img=np.array, expend_rate=10, processing_depth=2, save_path='', category_name=''):
     def multipleProcessImage(self, img=np.array):
@@ -295,6 +332,10 @@ class MultipleProcessingImage(object):
                     process_img = self.contrastImage(process_img)
                 elif self.process_method[index] == 'sharpingImage':
                     process_img = self.sharpingImage(process_img)
+                elif self.process_method[index] == 'hueImage':
+                    process_img = self.hsvImage(process_img, 0.8, 1, 1)
+                elif self.process_method[index] == 'saturationImage':
+                    process_img = self.hsvImage(process_img, 1, 0.8, 1)
 
             img_path = os.path.join(self.dst_path, self.category_name + '_' + str(self.image_index) + '.jpg')
             cv.imwrite(img_path, process_img)
