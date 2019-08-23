@@ -45,11 +45,11 @@ def drawRect(src_img, rect):
     x, y, w, h = rect
     # 存储三通道信息
     rect_img = np.zeros((h, w, 3))
-    rect_img = cv.rectangle(src_img, (x, y), (x+w, y+h), (255, 255, 0), 2)
+    rect_img = cv.rectangle(src_img, (int(x), int(y)), (int(x+w), int(y+h)), (255, 255, 0), 2)
     return rect_img
 
 
-def roiImage(src_img, roi_raing):
+def roiImage(src_img, rect):
     """
     提取感兴趣区域（Region Of Interest, ROI）
     :param img: 源图像
@@ -59,7 +59,7 @@ def roiImage(src_img, roi_raing):
     x, y, w, h = rect
     # 存储三通道信息
     roi_img = np.zeros((h, w, 3))
-    roi_img = src_img[y:y+h, x:x+w]
+    roi_img = src_img[int(y):int(y+h), int(x):int(x+w)]
     return roi_img
 
 
@@ -78,7 +78,7 @@ def cutImage(src_img, cut_rating=0.8):
     h = int(img_h*cut_rating)
     # 存储三通道信息
     roi_img = np.zeros((h, w, 3))
-    roi_img = src_img[y:y + h, x:x + w]
+    roi_img = src_img[int(y):int(y + h), int(x):int(x + w)]
     return roi_img
 
 
