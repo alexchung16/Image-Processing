@@ -54,7 +54,7 @@ def laplacian_sharping(img):
             if i == 0 or j == 0 or i == h - 1 or j == w - 1:
                 laplace_raw_img[i][j] = gray_img[i][j]
             else:
-                arr = np.zeros((1, 9))[0]
+                arr = np.zeros(9)
                 for k in range(3):
                     for l in range(3):
                         arr[k*3+l] = gray_img[i-1+k, j-1+l]
@@ -62,7 +62,7 @@ def laplacian_sharping(img):
                 laplace_raw_img[i][j] = Lmaskoperation(arr)
 
     laplace_raw_img = image_scale(laplace_raw_img)
-    laplace_dst_img = gray_img - laplace_raw_img
+    laplace_dst_img = gray_img + laplace_raw_img
     dst_laplace_img = np.uint8(laplace_dst_img)
 
     return gray_img, laplace_raw_img, dst_laplace_img
