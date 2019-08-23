@@ -1,5 +1,5 @@
 # !_*_ coding:utf8 _*_
-# @function 图像扩增
+# @function 图像数据集扩增
 # @Author alexchung
 # @Date 19/8/2019 14:56 PM
 
