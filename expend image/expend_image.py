@@ -9,6 +9,7 @@ import numpy as np
 import random
 from PIL import Image as im
 
+
 class MultipleProcessingImage(object):
     def __init__(self, src_path, dst_path, expend_rate=10, processing_depth=2, category_name=''):
         """
@@ -36,7 +37,8 @@ class MultipleProcessingImage(object):
                                 8: 'sharpingImage',
                                 9: 'hueImage',
                                 10: 'saturationImage',
-                                11: 'dpiImage'
+                                11: 'cutImage',
+                                12: 'dpiImage'
                              }
 
     def mkdirCheck(self, path, is_makdir=False):
@@ -301,6 +303,24 @@ class MultipleProcessingImage(object):
         dst_img = cv.cvtColor(np.uint8(dst_hsv_img), cv.COLOR_HSV2BGR)
         return dst_img
 
+    def cutImage(self, src_img, cut_rating=0.8):
+        """
+        提取感兴趣区域（Region Of Interest, ROI）
+        :param img: 源图像
+        :param rect: 感兴趣区域信息
+        :return:
+        """
+        img_w = src_img.shape[0]
+        img_h = src_img.shape[1]
+        x = np.random.randint(0, img_w*(1-cut_rating))
+        y = np.random.randint(0, img_h*(1-cut_rating))
+        w = int(img_w*cut_rating)
+        h = int(img_h*cut_rating)
+        # 存储三通道信息
+        roi_img = np.zeros((h, w, 3))
+        roi_img = src_img[y:y + h, x:x + w]
+        return roi_img
+
     # def multipleProcessImage(img=np.array, expend_rate=10, processing_depth=2, save_path='', category_name=''):
     def multipleProcessImage(self, img):
         """
@@ -341,7 +361,10 @@ class MultipleProcessingImage(object):
                     process_img = self.hsvImage(process_img, 0.8, 1, 1)
                 elif self.process_method[index] == 'saturationImage':
                     process_img = self.hsvImage(process_img, 1, 0.8, 1)
+                elif self.process_method[index] == 'cutImage':
+                    process_img = self.cutImage(process_img)
 
+            # 更新图片保存路径
             img_path = os.path.join(self.dst_path, self.category_name + '_' + str(self.image_index) + '.jpg')
             # 判断是否压缩分辨率
             if self.process_method[process_index[-1]] != 'dpiImage':
@@ -349,6 +372,7 @@ class MultipleProcessingImage(object):
             else:
                 PIL_img = im.fromarray(cv.cvtColor(process_img, cv.COLOR_BGR2RGB))
                 PIL_img.save(img_path, dpi=(36.0, 36.0))
+            # 更新图片序号
             self.image_index += 1
 
     def readProcessingSaveImage(self):
@@ -385,18 +409,4 @@ if __name__ == "__main__":
     process = MultipleProcessingImage(src_path=path, dst_path=new_path, category_name='tomatoes')
     process.run()
     # print(process.process_method)
-
-
-    # cv.imshow('image', img)
-    # cv.imshow('expend', sizeImage(img))
-    # cv.imshow('rotation', rotationImage(img))
-    #
-    # cv.imshow('respective', perspectiveTransformImage(img))
-    # #
-    # cv.imshow('noise', noiseImage(img))
-    #
-    # cv.imshow('blur', blurImage(img))
-    # cv.imshow('light', lightImage(img))
-    # cv.imshow('contrast', contrastImage(img))
-    # cv.waitKey(0)
 
