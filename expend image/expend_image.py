@@ -75,7 +75,7 @@ class MultipleProcessingImage(object):
         :return:
         """
         self.readProcessingSaveImage()
-        print('This time successfully process of ' + str(self.image_index) + 'figures')
+        print('This time successfully process of ' + str(self.image_index) + ' figures')
 
     def getProcessingMethod(self):
         """
