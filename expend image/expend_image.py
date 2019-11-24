@@ -401,7 +401,7 @@ class MultipleProcessingImage(object):
 
         for i in range(self.expend_rate):
             process_img = img
-            depth = np.random_index = np.random.randint(1, self.processing_depth + 1)
+            depth  = np.random.randint(1, self.processing_depth + 1)
             process_index = sorted(random.sample((np.arange(1, len(self.process_method) + 1).tolist()), depth))
 
             for index in process_index[:-1]:
