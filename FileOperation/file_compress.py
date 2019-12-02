@@ -36,9 +36,30 @@ def file_generator(file_dir):
     # print(file_generator(src_dir))
 
 
-def file_compress(src_dir, dst_dir):
+def file_compress_zip(src_dir, dst_dir):
     """
-    writing file to a zipfile
+    writing file to a zip file
+    :param src_dir:
+    :param dst_dir:
+    :return:
+    """
+    # get time stamp to generate zip filename
+    time_stamp = time.time()
+    zip_file_path = os.path.join(dst_dir, os.path.split(src_dir)[-1] + str(int(time_stamp)) + '.zip')
+    try:
+        file_path, arc_path = file_generator(src_dir)
+        with zipfile.ZipFile(file=zip_file_path, mode='w', compression=zipfile.ZIP_DEFLATED) as zip_file:
+            for file, arc_file in zip(file_path, arc_path):
+                zip_file.write(filename=file, arcname=arc_file)
+        print('All file zipped successfully')
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+def file_compress_tar(src_dir, dst_dir):
+    """
+    writing file to a tar file
     :param src_dir:
     :param dst_dir:
     :return:
@@ -46,18 +67,19 @@ def file_compress(src_dir, dst_dir):
     # get time stamp to generate zip filename
     time_stamp = time.time()
 
-    zip_file_path = os.path.join(dst_dir, os.path.split(src_dir)[-1] + str(int(time_stamp)) + '.zip')
-
-    file_path, arc_path = file_generator(src_dir)
-
-    with zipfile.ZipFile(file=zip_file_path, mode='w', compression=zipfile.ZIP_DEFLATED) as zip_file:
-        for file, arc_file in zip(file_path, arc_path):
-            zip_file.write(filename=file, arcname=arc_file)
-    print('All file zipped successfully')
+    tar_file_path = os.path.join(dst_dir, os.path.split(src_dir)[-1] + str(int(time_stamp)) + '.tar.gz')
+    arc_dir = os.path.basename(src_dir)
+    try:
+        with tarfile.open(tar_file_path, mode='w:gz') as tar_file:
+            tar_file.add(name=src_dir, arcname=arc_dir)
+        print('All file compress successfully')
+        return True
+    except Exception as e:
+        print(e)
+        return False
 
 
 if __name__ == "__main__":
-    time_stamp = time.time()
 
     # # get zip filename
     # if src_dir.split('/')[-1] == '/':
@@ -65,7 +87,8 @@ if __name__ == "__main__":
     # else:
     #     zip_file_path = os.path.join(dst_dir, src_dir.split('/')[-1] + str(int(time_stamp)) + '.zip')
     # zip_file_path = os.path.join(dst_dir, os.path.split(src_dir)[-1]+ str(int(time_stamp)) + '.zip')
-    file_compress(src_dir, dst_dir)
+    # file_compress_zip(src_dir, dst_dir)
+    file_compress_tar(src_dir, dst_dir)
 
 
 
