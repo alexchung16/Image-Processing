@@ -24,7 +24,7 @@ def file_generator(file_dir):
     files_path = []
     arc_path = []
     # current_dir = str()
-    parent_dir = os.path.split(src_dir)[0]
+    parent_dir = os.path.split(file_dir)[0]
     for root, directories, files in os.walk(file_dir):
         # current_dir = os.path.join(current_dir, os.path.split(root)[-1])
         for file in files:
@@ -88,7 +88,16 @@ if __name__ == "__main__":
     #     zip_file_path = os.path.join(dst_dir, src_dir.split('/')[-1] + str(int(time_stamp)) + '.zip')
     # zip_file_path = os.path.join(dst_dir, os.path.split(src_dir)[-1]+ str(int(time_stamp)) + '.zip')
     # file_compress_zip(src_dir, dst_dir)
-    file_compress_tar(src_dir, dst_dir)
+    # file_compress_tar(src_dir, dst_dir)
+
+    print(os.path.isdir(src_dir))
+
+    if src_dir.endswith('/'):
+        src_dir = src_dir[:-1]
+
+
+
+
 
 
 
